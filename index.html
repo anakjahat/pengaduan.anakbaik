@@ -38,7 +38,7 @@
             text-align: center;
         }
 
-        .form-container input[type="text"],
+        .form-container input[type="date"],
         .form-container textarea {
             width: 100%;
             padding: 0.8rem;
@@ -62,6 +62,10 @@
         .form-container button:hover {
             background-color: #ff4081;
         }
+
+        .form-container input[type="file"] {
+            margin: 1rem 0;
+        }
     </style>
 </head>
 <body>
@@ -69,8 +73,9 @@
     <p>Silakan masukkan pengaduanmu di bawah ini:</p>
     <div class="form-container">
         <form>
-            <input type="text" name="nama" placeholder="Nama kamu" required>
+            <input type="date" name="tanggal" required>
             <textarea name="pengaduan" rows="5" placeholder="Tulis pengaduanmu di sini..." required></textarea>
+            <input type="file" name="voice" accept="audio/*" capture>
             <button type="submit">Kirim</button>
         </form>
     </div>
