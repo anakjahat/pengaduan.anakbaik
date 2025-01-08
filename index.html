@@ -63,8 +63,12 @@
             background-color: #ff4081;
         }
 
-        .form-container input[type="file"] {
+        .form-container .audio-record {
             margin: 1rem 0;
+        }
+
+        .form-container .audio-record button {
+            margin-top: 1rem;
         }
     </style>
 </head>
@@ -75,9 +79,59 @@
         <form>
             <input type="date" name="tanggal" required>
             <textarea name="pengaduan" rows="5" placeholder="Tulis pengaduanmu di sini..." required></textarea>
-            <input type="file" name="voice" accept="audio/*" capture>
+            <div class="audio-record">
+                <label for="record">Rekam Suara:</label>
+                <button type="button" onclick="startRecording()">Mulai Rekam</button>
+                <button type="button" onclick="stopRecording()" disabled>Berhenti Rekam</button>
+                <audio id="audioPlayback" controls style="display:none;"></audio>
+                <input type="hidden" name="voice" id="audioData">
+            </div>
             <button type="submit">Kirim</button>
         </form>
     </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+
+                audioChunks = [];
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = document.getElementById('audioPlayback');
+                    const audioData = document.getElementById('audioData');
+
+                    audio.style.display = 'block';
+                    audio.src = audioUrl;
+
+                    // Convert audio to base64 and store it in the hidden input
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob);
+                    reader.onloadend = () => {
+                        audioData.value = reader.result;
+                    };
+                };
+
+                document.querySelector('[onclick="startRecording()"]').disabled = true;
+                document.querySelector('[onclick="stopRecording()"]').disabled = false;
+            });
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+
+            document.querySelector('[onclick="startRecording()"]').disabled = false;
+            document.querySelector('[onclick="stopRecording()"]').disabled = true;
+        }
+    </script>
 </body>
 </html>
